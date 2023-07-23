@@ -135,55 +135,49 @@ public abstract class Thunk<T> {
 
     public Coroutine<T> toCoroutine() {
         Deque<Frame> stack = new ArrayDeque<>();
-        stack.push(new Frame(this));
         AtomicReference<Object> ret = new AtomicReference<>(null);
+        stack.push(new Frame(this));
 
         return value -> {
             ret.set(value);
-            while (!stack.isEmpty()) {
-                Frame top = stack.peek();
-                Thunk<?> thunk = top.thunk;
-                if (thunk instanceof Empty) {
-                    stack.pop();
-                } else if (thunk instanceof Value) {
-                    stack.pop();
-                    ret.set(((Value<T>) thunk).value);
-                } else if (thunk instanceof Pause) {
-                    stack.pop();
-                    return (T) ((Pause) thunk).value;
-                } else if (thunk instanceof FlatMap) {
-                    FlatMap flatMap = (FlatMap<?, ?>) thunk;
-                    if (top.flag == 0) {
-                        top.flag = 1;
-                        stack.push(new Frame(flatMap.thunk));
-                    } else {
-                        stack.pop();
-                        stack.push(new Frame((Thunk<?>) flatMap.mapper.apply(ret.get())));
-                    }
-                }
-            }
-
-            throw new EndOfCoroutineException();
+            return runStack(stack, ret, Integer.MAX_VALUE);
         };
     }
 
     public T run(int maxStackSize) {
         Deque<Frame> stack = new ArrayDeque<>();
+        AtomicReference<Object> ret = new AtomicReference<>(null);
         stack.push(new Frame(this));
-        T ret = null;
 
+        try {
+            runStack(stack, ret, maxStackSize);
+        } catch (EndOfCoroutineException ignored) {
+
+        }
+
+        return (T) ret.get();
+    }
+
+    public T run() {
+        return run(Integer.MAX_VALUE);
+    }
+
+    private T runStack(Deque<Frame> stack, AtomicReference<Object> ret, int maxStackSize) {
         while (!stack.isEmpty()) {
             if (stack.size() > maxStackSize) {
                 throw new StackOverflowException(maxStackSize);
             }
 
             Frame top = stack.peek();
-            Object thunk = top.thunk;
+            Thunk<?> thunk = top.thunk;
             if (thunk instanceof Empty) {
                 stack.pop();
             } else if (thunk instanceof Value) {
-                ret = (T) ((Value<?>) thunk).value;
                 stack.pop();
+                ret.set(((Value<T>) thunk).value);
+            } else if (thunk instanceof Pause) {
+                stack.pop();
+                return (T) ((Pause) thunk).value;
             } else if (thunk instanceof FlatMap) {
                 FlatMap flatMap = (FlatMap<?, ?>) thunk;
                 if (top.flag == 0) {
@@ -191,15 +185,11 @@ public abstract class Thunk<T> {
                     stack.push(new Frame(flatMap.thunk));
                 } else {
                     stack.pop();
-                    stack.push(new Frame((Thunk<?>) flatMap.mapper.apply(ret)));
+                    stack.push(new Frame((Thunk<?>) flatMap.mapper.apply(ret.get())));
                 }
             }
         }
 
-        return ret;
-    }
-
-    public T run() {
-        return run(Integer.MAX_VALUE);
+        throw new EndOfCoroutineException();
     }
 }
