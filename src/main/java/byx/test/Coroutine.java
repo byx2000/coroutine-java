@@ -1,9 +1,9 @@
 package byx.test;
 
-public interface Coroutine<T> {
-    default T run() throws EndOfCoroutineException {
+public interface Coroutine {
+    default <T> T run() throws EndOfCoroutineException {
         return run(null);
     }
 
-    T run(Object value) throws EndOfCoroutineException;
+    <T> T run(Object value) throws EndOfCoroutineException;
 }

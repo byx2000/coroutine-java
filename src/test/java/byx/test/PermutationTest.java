@@ -50,7 +50,7 @@ public class PermutationTest {
             List<List<Integer>> r = new ArrayList<>();
             permutation1(0, nums, new boolean[n], new LinkedList<>(), r);
 
-            Coroutine<List<Integer>> co = permutationIterator(0, nums, new boolean[nums.length], new LinkedList<>()).toCoroutine();
+            Coroutine co = permutationIterator(0, nums, new boolean[nums.length], new LinkedList<>()).toCoroutine();
             for (List<Integer> p : r) {
                 assertEquals(p, co.run());
             }
@@ -66,7 +66,7 @@ public class PermutationTest {
             nums[i] = i + 1;
         }
 
-        Coroutine<List<Integer>> co = permutationIterator(0, nums, new boolean[nums.length], new LinkedList<>()).toCoroutine();
+        Coroutine co = permutationIterator(0, nums, new boolean[nums.length], new LinkedList<>()).toCoroutine();
         assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20), co.run());
         assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 19), co.run());
         assertEquals(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 18, 20), co.run());

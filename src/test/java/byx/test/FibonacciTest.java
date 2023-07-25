@@ -21,9 +21,9 @@ public class FibonacciTest {
 
     @Test
     public void testFibonacciIterator() {
-        Coroutine<Long> co = fibonacciIterator().toCoroutine();
+        Coroutine co = fibonacciIterator().toCoroutine();
         for (int i = 1; i <= 30; i++) {
-            assertEquals(fibonacci1(i), co.run());
+            assertEquals(fibonacci1(i), (long) co.run());
         }
     }
 

@@ -12,10 +12,10 @@ public class CoroutineTest {
             .then(pause(123, Boolean.class))
             .flatMap(r -> r ? pause(456) : pause(789))
             .then(pause(666));
-        Coroutine<Integer> co = thunk.toCoroutine();
-        assertEquals(123, co.run());
-        assertEquals(456, co.run(true));
-        assertEquals(666, co.run());
+        Coroutine co = thunk.toCoroutine();
+        assertEquals(123, (int) co.run());
+        assertEquals(456, (int) co.run(true));
+        assertEquals(666, (int) co.run());
     }
 
     @Test
@@ -24,9 +24,9 @@ public class CoroutineTest {
             .then(pause(123, Boolean.class))
             .flatMap(r -> r ? pause(456) : pause(789))
             .then(pause(666));
-        Coroutine<Integer> co = thunk.toCoroutine();
-        assertEquals(123, co.run());
-        assertEquals(789, co.run(false));
-        assertEquals(666, co.run());
+        Coroutine co = thunk.toCoroutine();
+        assertEquals(123, (int) co.run());
+        assertEquals(789, (int) co.run(false));
+        assertEquals(666, (int) co.run());
     }
 }

@@ -44,7 +44,7 @@ public class SubsetTest {
             List<List<Integer>> ans = new ArrayList<>();
             subset1(nums, 0, new LinkedList<>(), ans);
 
-            Coroutine<List<Integer>> co = subsetIterator(nums, 0, new LinkedList<>()).toCoroutine();
+            Coroutine co = subsetIterator(nums, 0, new LinkedList<>()).toCoroutine();
             for (List<Integer> set : ans) {
                 assertEquals(set, co.run());
             }
@@ -60,7 +60,7 @@ public class SubsetTest {
             nums[i] = i + 1;
         }
 
-        Coroutine<List<Integer>> co = subsetIterator(nums, 0, new LinkedList<>()).toCoroutine();
+        Coroutine co = subsetIterator(nums, 0, new LinkedList<>()).toCoroutine();
         assertEquals(List.of(), co.run());
         assertEquals(List.of(50), co.run());
         assertEquals(List.of(49), co.run());

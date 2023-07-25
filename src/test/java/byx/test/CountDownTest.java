@@ -10,17 +10,17 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CountDownTest {
     @Test
     public void testCountDown() {
-        Coroutine<Integer> co = countDown(5).toCoroutine();
-        assertEquals(5, co.run());
-        assertEquals(4, co.run());
-        assertEquals(10, co.run(10));
-        assertEquals(9, co.run());
-        assertEquals(8, co.run());
-        assertEquals(7, co.run());
-        assertEquals(15, co.run(15));
-        assertEquals(14, co.run());
-        assertEquals(13, co.run());
-        assertEquals(12, co.run());
+        Coroutine co = countDown(5).toCoroutine();
+        assertEquals(5, (int) co.run());
+        assertEquals(4, (int) co.run());
+        assertEquals(10, (int) co.run(10));
+        assertEquals(9, (int) co.run());
+        assertEquals(8, (int) co.run());
+        assertEquals(7, (int) co.run());
+        assertEquals(15, (int) co.run(15));
+        assertEquals(14, (int) co.run());
+        assertEquals(13, (int) co.run());
+        assertEquals(12, (int) co.run());
     }
 
     private Thunk<Integer> countDown(int n) {

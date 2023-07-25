@@ -242,13 +242,13 @@ public class BinaryTreeTest {
     @Test
     public void testPreorderIterator() {
         TreeNode root = buildTree();
-        Coroutine<Integer> co = preorderIterator(root).toCoroutine();
-        assertEquals(1, co.run());
-        assertEquals(2, co.run());
-        assertEquals(4, co.run());
-        assertEquals(5, co.run());
-        assertEquals(3, co.run());
-        assertEquals(6, co.run());
+        Coroutine co = preorderIterator(root).toCoroutine();
+        assertEquals(1, (int) co.run());
+        assertEquals(2, (int) co.run());
+        assertEquals(4, (int) co.run());
+        assertEquals(5, (int) co.run());
+        assertEquals(3, (int) co.run());
+        assertEquals(6, (int) co.run());
     }
 
     private Thunk<Integer> inorderIterator(TreeNode node) {
@@ -264,13 +264,13 @@ public class BinaryTreeTest {
     @Test
     public void testInorderIterator() {
         TreeNode root = buildTree();
-        Coroutine<Integer> co = inorderIterator(root).toCoroutine();
-        assertEquals(4, co.run());
-        assertEquals(2, co.run());
-        assertEquals(5, co.run());
-        assertEquals(1, co.run());
-        assertEquals(3, co.run());
-        assertEquals(6, co.run());
+        Coroutine co = inorderIterator(root).toCoroutine();
+        assertEquals(4, (int) co.run());
+        assertEquals(2, (int) co.run());
+        assertEquals(5, (int) co.run());
+        assertEquals(1, (int) co.run());
+        assertEquals(3, (int) co.run());
+        assertEquals(6, (int) co.run());
     }
 
     private Thunk<Integer> postorderIterator(TreeNode node) {
@@ -286,12 +286,12 @@ public class BinaryTreeTest {
     @Test
     public void testPostorderIterator() {
         TreeNode root = buildTree();
-        Coroutine<Integer> co = postorderIterator(root).toCoroutine();
-        assertEquals(4, co.run());
-        assertEquals(5, co.run());
-        assertEquals(2, co.run());
-        assertEquals(6, co.run());
-        assertEquals(3, co.run());
-        assertEquals(1, co.run());
+        Coroutine co = postorderIterator(root).toCoroutine();
+        assertEquals(4, (int) co.run());
+        assertEquals(5, (int) co.run());
+        assertEquals(2, (int) co.run());
+        assertEquals(6, (int) co.run());
+        assertEquals(3, (int) co.run());
+        assertEquals(1, (int) co.run());
     }
 }

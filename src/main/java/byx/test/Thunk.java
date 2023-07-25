@@ -141,15 +141,18 @@ public abstract class Thunk<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public Coroutine toCoroutine() {
         Deque<Frame> stack = new ArrayDeque<>();
         AtomicReference<Object> ret = new AtomicReference<>(null);
         stack.push(new Frame(this));
 
-        return value -> {
-            ret.set(value);
-            return (T) runStack(stack, ret, Integer.MAX_VALUE);
+        return new Coroutine() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <U> U run(Object value) throws EndOfCoroutineException {
+                ret.set(value);
+                return (U) runStack(stack, ret, Integer.MAX_VALUE);
+            }
         };
     }
 
