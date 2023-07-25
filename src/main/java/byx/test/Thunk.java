@@ -15,9 +15,6 @@ import java.util.function.Supplier;
 public abstract class Thunk<T> {
     private static class Empty<T> extends Thunk<T> {
         private static final Empty<?> INSTANCE = new Empty<>();
-
-        private Empty() {
-        }
     }
 
     private static class Value<T> extends Thunk<T> {
@@ -28,10 +25,10 @@ public abstract class Thunk<T> {
         }
     }
 
-    public static class Pause<T, U> extends Thunk<T> {
-        private final U value;
+    public static class Pause<T> extends Thunk<T> {
+        private final Object value;
 
-        private Pause(U value) {
+        private Pause(Object value) {
             this.value = value;
         }
     }
@@ -70,7 +67,11 @@ public abstract class Thunk<T> {
         return new Pause<>(value);
     }
 
-    public static <T, U> Thunk<U> pause(T value, Class<U> retType) {
+    public static <T> Thunk<T> pause() {
+        return pause(null);
+    }
+
+    public static <T> Thunk<T> pause(Object value, Class<T> retType) {
         return new Pause<>(value);
     }
 
@@ -131,20 +132,10 @@ public abstract class Thunk<T> {
         });
     }
 
-    private static class Frame {
-        private Thunk<?> thunk;
-        private byte flag;
-
-        private Frame(Thunk<?> thunk) {
-            this.thunk = thunk;
-            this.flag = 0;
-        }
-    }
-
     public Coroutine toCoroutine() {
-        Deque<Frame> stack = new ArrayDeque<>();
+        Deque<Object> stack = new ArrayDeque<>();
         AtomicReference<Object> ret = new AtomicReference<>(null);
-        stack.push(new Frame(this));
+        stack.push(this);
 
         return new Coroutine() {
             @Override
@@ -158,9 +149,9 @@ public abstract class Thunk<T> {
 
     @SuppressWarnings("unchecked")
     public T run(int maxStackSize) {
-        Deque<Frame> stack = new ArrayDeque<>();
+        Deque<Object> stack = new ArrayDeque<>();
         AtomicReference<Object> ret = new AtomicReference<>(null);
-        stack.push(new Frame(this));
+        stack.push(this);
 
         try {
             runStack(stack, ret, maxStackSize);
@@ -175,30 +166,28 @@ public abstract class Thunk<T> {
         return run(Integer.MAX_VALUE);
     }
 
-    private Object runStack(Deque<Frame> stack, AtomicReference<Object> ret, int maxStackSize) {
+    private Object runStack(Deque<Object> stack, AtomicReference<Object> ret, int maxStackSize) {
         while (!stack.isEmpty()) {
             if (stack.size() > maxStackSize) {
                 throw new StackOverflowException(maxStackSize);
             }
 
-            Frame top = stack.peek();
-            Thunk<?> thunk = top.thunk;
-            if (thunk instanceof Empty) {
+            Object top = stack.peek();
+            if (top instanceof Empty) {
                 stack.pop();
-            } else if (thunk instanceof Value<?> v) {
+            } else if (top instanceof Value<?> v) {
                 stack.pop();
                 ret.set(v.value);
-            } else if (thunk instanceof Pause<?, ?> p) {
+            } else if (top instanceof Pause<?> p) {
                 stack.pop();
                 return p.value;
-            } else if (thunk instanceof FlatMap flatMap) {
-                if (top.flag == 0) {
-                    top.flag = 1;
-                    stack.push(new Frame(flatMap.thunk));
-                } else {
-                    stack.pop();
-                    stack.push(new Frame((Thunk<?>) flatMap.mapper.apply(ret.get())));
-                }
+            } else if (top instanceof FlatMap<?, ?> flatMap) {
+                stack.pop();
+                stack.push(flatMap.mapper);
+                stack.push(flatMap.thunk);
+            } else if (top instanceof Function mapper) {
+                stack.pop();
+                stack.push(mapper.apply(ret.get()));
             }
         }
 
