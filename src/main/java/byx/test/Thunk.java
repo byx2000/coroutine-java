@@ -191,6 +191,6 @@ public abstract class Thunk<T> {
             }
         }
 
-        throw new EndOfCoroutineException();
+        throw new EndOfCoroutineException(ret.get());
     }
 }
