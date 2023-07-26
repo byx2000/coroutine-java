@@ -28,6 +28,18 @@ public class SystemCall {
     }
 
     public static <T> Thunk<T> waitTask(Coroutine coroutine, Class<T> retType) {
+        return waitTask(coroutine);
+    }
+
+    public static <T> Thunk<T> waitTask(Coroutine coroutine) {
         return pause(new SystemCall("waitTask", coroutine));
+    }
+
+    public static <T> Thunk<T> waitTid(long tid, Class<T> retType) {
+        return waitTid(tid);
+    }
+
+    public static <T> Thunk<T> waitTid(long tid) {
+        return pause(new SystemCall("waitTid", tid));
     }
 }

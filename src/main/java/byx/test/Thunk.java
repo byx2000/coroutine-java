@@ -102,6 +102,15 @@ public abstract class Thunk<T> {
         return loop(condition, exec(update), exec(body));
     }
 
+    public static <T> Thunk<T> repeat(int times, Thunk<?> body) {
+        int[] var = new int[]{0};
+        return loop(
+            () -> var[0] < times,
+            () -> var[0]++,
+            body
+        );
+    }
+
     public <U> Thunk<U> flatMap(Function<T, Thunk<U>> mapper) {
         return new FlatMap<>(this, mapper);
     }

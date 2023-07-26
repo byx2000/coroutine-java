@@ -4,14 +4,14 @@ package byx.test;
  * 协程运行结束后，继续调用run方法则抛出此异常
  */
 public class EndOfCoroutineException extends RuntimeException {
-    private final Object returnValue;
+    private final Object retVal;
 
-    public EndOfCoroutineException(Object returnValue) {
-        super("coroutine is end, return value is " + returnValue);
-        this.returnValue = returnValue;
+    public EndOfCoroutineException(Object retVal) {
+        super("coroutine is end, return value is " + retVal);
+        this.retVal = retVal;
     }
 
-    public Object getReturnValue() {
-        return returnValue;
+    public Object getRetVal() {
+        return retVal;
     }
 }
