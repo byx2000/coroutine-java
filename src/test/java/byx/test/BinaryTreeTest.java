@@ -1,11 +1,13 @@
 package byx.test;
 
+import byx.test.core.Coroutine;
+import byx.test.core.Thunk;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static byx.test.Thunk.*;
+import static byx.test.core.Thunk.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BinaryTreeTest {

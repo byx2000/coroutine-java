@@ -1,8 +1,10 @@
 package byx.test;
 
+import byx.test.core.Thunk;
+import byx.test.exception.StackOverflowException;
 import org.junit.jupiter.api.Test;
 
-import static byx.test.Thunk.*;
+import static byx.test.core.Thunk.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CatalanNumberTest {

@@ -1,10 +1,12 @@
 package byx.test;
 
+import byx.test.core.Coroutine;
+import byx.test.core.Thunk;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static byx.test.Thunk.*;
+import static byx.test.core.Thunk.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CountDownTest {

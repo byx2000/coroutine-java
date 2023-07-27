@@ -1,4 +1,6 @@
-package byx.test;
+package byx.test.dispatcher;
+
+import byx.test.core.Coroutine;
 
 public class Task {
     private static long nextId = 1;
@@ -6,6 +8,7 @@ public class Task {
     private final Coroutine coroutine;
     private final long tid;
     private Object sendVal;
+    private Object retVal;
 
     public Task(Coroutine coroutine) {
         this.coroutine = coroutine;
@@ -18,6 +21,14 @@ public class Task {
 
     public void setSendVal(Object sendVal) {
         this.sendVal = sendVal;
+    }
+
+    public Object getRetVal() {
+        return retVal;
+    }
+
+    public void setRetVal(Object retVal) {
+        this.retVal = retVal;
     }
 
     public Object run() {

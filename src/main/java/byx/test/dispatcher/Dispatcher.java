@@ -1,4 +1,7 @@
-package byx.test;
+package byx.test.dispatcher;
+
+import byx.test.core.Coroutine;
+import byx.test.exception.EndOfCoroutineException;
 
 import java.util.*;
 
@@ -21,35 +24,37 @@ public class Dispatcher {
                 Object ret = task.run();
                 if (ret instanceof SystemCall systemCall) {
                     switch (systemCall.getName()) {
-                        case "getTid" -> task.setSendVal(task.getTid());
-                        case "newTask" -> {
-                            Coroutine coroutine = (Coroutine) systemCall.getArg();
-                            long newTid = addTask(coroutine);
-                            task.setSendVal(newTid);
-                        }
-                        case "waitTask" -> {
+                        case "await" -> {
                             Coroutine coroutine = (Coroutine) systemCall.getArg();
                             long newTid = addTask(coroutine);
                             waitMap.put(newTid, new ArrayList<>(List.of(task)));
                             continue;
                         }
-                        case "waitTid" -> {
-                            long tid = (long) systemCall.getArg();
+                        case "createTask" -> {
+                            Coroutine coroutine = (Coroutine) systemCall.getArg();
+                            long newTid = addTask(coroutine);
+                            task.setSendVal(taskMap.get(newTid));
+                        }
+                        case "waitTask" -> {
+                            Task waitTask = (Task) systemCall.getArg();
 
                             // 如果协程已结束，则无需等待，直接返回
-                            if (!taskMap.containsKey(tid)) {
-                                task.setSendVal(null);
+                            if (!taskMap.containsKey(waitTask.getTid())) {
+                                task.setSendVal(waitTask.getRetVal());
                                 break;
                             }
 
                             // 将当前协程加入等待队列
-                            waitMap.computeIfAbsent(tid, t -> new ArrayList<>()).add(task);
+                            waitMap.computeIfAbsent(waitTask.getTid(), t -> new ArrayList<>()).add(task);
                             continue;
                         }
                         default -> throw new RuntimeException("unknown system call: " + systemCall.getName());
                     }
                 }
             } catch (EndOfCoroutineException e) {
+                // 设置当前协程返回值
+                task.setRetVal(e.getRetVal());
+
                 // 唤醒等待当前协程的协程
                 if (waitMap.containsKey(task.getTid())) {
                     waitMap.get(task.getTid()).forEach(t -> {
@@ -66,5 +71,4 @@ public class Dispatcher {
             tasks.addLast(task);
         }
     }
-
 }
