@@ -3,6 +3,8 @@ package byx.test.dispatcher;
 import byx.test.core.Coroutine;
 import byx.test.core.Thunk;
 
+import java.util.function.Consumer;
+
 import static byx.test.core.Thunk.*;
 
 public class SystemCall {
@@ -40,5 +42,13 @@ public class SystemCall {
 
     public static <T> Thunk<T> await(Coroutine coroutine, Class<T> retType) {
         return await(coroutine);
+    }
+
+    public static <T> Thunk<T> withContinuation(Consumer<Continuation<T>> callback) {
+        return pause(new SystemCall("withContinuation", callback));
+    }
+
+    public static <T> Thunk<T> withContinuation(Consumer<Continuation<T>> callback, Class<T> retType) {
+        return withContinuation(callback);
     }
 }

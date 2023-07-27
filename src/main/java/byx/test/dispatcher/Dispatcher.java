@@ -3,23 +3,29 @@ package byx.test.dispatcher;
 import byx.test.core.Coroutine;
 import byx.test.exception.EndOfCoroutineException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public class Dispatcher {
-    private final Deque<Task> tasks = new ArrayDeque<>();
+    private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
     private final Map<Long, Task> taskMap = new HashMap<>();
     private final Map<Long, List<Task>> waitMap = new HashMap<>();
 
     public long addTask(Coroutine coroutine) {
         Task task = new Task(coroutine);
-        tasks.addLast(task);
+        tasks.add(task);
         taskMap.put(task.getTid(), task);
         return task.getTid();
     }
 
-    public void run() {
-        while (!tasks.isEmpty()) {
-            Task task = tasks.removeFirst();
+    public void run() throws InterruptedException {
+        while (!taskMap.isEmpty()) {
+            Task task = tasks.take();
             try {
                 Object ret = task.run();
                 if (ret instanceof SystemCall systemCall) {
@@ -48,6 +54,14 @@ public class Dispatcher {
                             waitMap.computeIfAbsent(waitTask.getTid(), t -> new ArrayList<>()).add(task);
                             continue;
                         }
+                        case "withContinuation" -> {
+                            Consumer<Continuation<?>> callback = (Consumer<Continuation<?>>) systemCall.getArg();
+                            callback.accept(value -> {
+                                task.setSendVal(value);
+                                tasks.add(task);
+                            });
+                            continue;
+                        }
                         default -> throw new RuntimeException("unknown system call: " + systemCall.getName());
                     }
                 }
@@ -59,7 +73,7 @@ public class Dispatcher {
                 if (waitMap.containsKey(task.getTid())) {
                     waitMap.get(task.getTid()).forEach(t -> {
                         t.setSendVal(e.getRetVal());
-                        tasks.addLast(t);
+                        tasks.add(t);
                     });
                     waitMap.remove(task.getTid());
                 }
@@ -68,7 +82,7 @@ public class Dispatcher {
                 taskMap.remove(task.getTid());
                 continue;
             }
-            tasks.addLast(task);
+            tasks.add(task);
         }
     }
 }
