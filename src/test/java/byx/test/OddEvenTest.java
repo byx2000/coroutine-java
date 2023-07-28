@@ -17,10 +17,10 @@ public class OddEvenTest {
 
     @Test
     public void testStackOverflow() {
-        assertThrows(StackOverflowError.class, () -> isOdd1(100000));
-        assertThrows(StackOverflowError.class, () -> isEven1(100000));
-        assertDoesNotThrow(() -> isOdd2(100000).run());
-        assertDoesNotThrow(() -> isEven2(100000).run());
+        assertThrows(StackOverflowError.class, () -> isOdd1(1000000));
+        assertThrows(StackOverflowError.class, () -> isEven1(1000000));
+        assertDoesNotThrow(() -> isOdd2(1000000).run());
+        assertDoesNotThrow(() -> isEven2(1000000).run());
     }
 
     private boolean isOdd1(int n) {
