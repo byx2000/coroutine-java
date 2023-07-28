@@ -1,11 +1,7 @@
 package byx.test.core;
 
 import byx.test.exception.EndOfCoroutineException;
-import byx.test.exception.StackOverflowException;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -114,64 +110,30 @@ public interface Thunk<T> {
     }
 
     default Coroutine toCoroutine() {
-        Deque<Object> stack = new ArrayDeque<>();
-        AtomicReference<Object> ret = new AtomicReference<>(null);
-        stack.push(this);
+        return toCoroutine(Integer.MAX_VALUE);
+    }
 
-        return new Coroutine() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public <U> U run(Object value) throws EndOfCoroutineException {
-                ret.set(value);
-                return (U) runStack(stack, ret, Integer.MAX_VALUE);
-            }
-        };
+    default Coroutine toCoroutine(int maxStackSize) {
+        return new Coroutine(this, maxStackSize);
     }
 
     @SuppressWarnings("unchecked")
     default T run(int maxStackSize) {
-        Deque<Object> stack = new ArrayDeque<>();
-        AtomicReference<Object> ret = new AtomicReference<>(null);
-        stack.push(this);
+        Coroutine co = toCoroutine(maxStackSize);
+        Object ret;
 
         try {
-            runStack(stack, ret, maxStackSize);
-        } catch (EndOfCoroutineException ignored) {
-
+            while (true) {
+                co.run();
+            }
+        } catch (EndOfCoroutineException e) {
+            ret = e.getRetVal();
         }
 
-        return (T) ret.get();
+        return (T) ret;
     }
 
     default T run() {
         return run(Integer.MAX_VALUE);
-    }
-
-    private Object runStack(Deque<Object> stack, AtomicReference<Object> ret, int maxStackSize) {
-        while (!stack.isEmpty()) {
-            if (stack.size() > maxStackSize) {
-                throw new StackOverflowException(maxStackSize);
-            }
-
-            Object top = stack.peek();
-            if (top instanceof Empty) {
-                stack.pop();
-            } else if (top instanceof Value<?> v) {
-                stack.pop();
-                ret.set(v.getValue());
-            } else if (top instanceof Pause<?> p) {
-                stack.pop();
-                return p.getValue();
-            } else if (top instanceof FlatMap<?, ?> flatMap) {
-                stack.pop();
-                stack.push(flatMap.getMapper());
-                stack.push(flatMap.getThunk());
-            } else if (top instanceof Function mapper) {
-                stack.pop();
-                stack.push(mapper.apply(ret.get()));
-            }
-        }
-
-        throw new EndOfCoroutineException(ret.get());
     }
 }
