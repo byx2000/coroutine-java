@@ -23,25 +23,31 @@ public class Dispatcher {
         return task.getTid();
     }
 
-    public void run() throws InterruptedException {
+    public void run() {
         while (!taskMap.isEmpty()) {
-            Task task = tasks.take();
+            Task task;
+            try {
+                task = tasks.take();
+            } catch (InterruptedException e) {
+                break;
+            }
+
             try {
                 Object ret = task.run();
                 if (ret instanceof SystemCall systemCall) {
                     switch (systemCall.getName()) {
-                        case "await" -> {
+                        case SystemCall.AWAIT -> {
                             Coroutine coroutine = (Coroutine) systemCall.getArg();
                             long newTid = addTask(coroutine);
                             waitMap.put(newTid, new ArrayList<>(List.of(task)));
                             continue;
                         }
-                        case "createTask" -> {
+                        case SystemCall.CREATE_TASK -> {
                             Coroutine coroutine = (Coroutine) systemCall.getArg();
                             long newTid = addTask(coroutine);
                             task.setSendVal(taskMap.get(newTid));
                         }
-                        case "waitTask" -> {
+                        case SystemCall.WAIT -> {
                             Task waitTask = (Task) systemCall.getArg();
 
                             // 如果协程已结束，则无需等待，直接返回
@@ -54,8 +60,8 @@ public class Dispatcher {
                             waitMap.computeIfAbsent(waitTask.getTid(), t -> new ArrayList<>()).add(task);
                             continue;
                         }
-                        case "withContinuation" -> {
-                            Consumer<Continuation<?>> callback = (Consumer<Continuation<?>>) systemCall.getArg();
+                        case SystemCall.WITH_CONTINUATION -> {
+                            Consumer<Continuation> callback = (Consumer<Continuation>) systemCall.getArg();
                             callback.accept(value -> {
                                 task.setSendVal(value);
                                 tasks.add(task);
@@ -66,23 +72,27 @@ public class Dispatcher {
                     }
                 }
             } catch (EndOfCoroutineException e) {
-                // 设置当前协程返回值
-                task.setRetVal(e.getRetVal());
-
-                // 唤醒等待当前协程的协程
-                if (waitMap.containsKey(task.getTid())) {
-                    waitMap.get(task.getTid()).forEach(t -> {
-                        t.setSendVal(e.getRetVal());
-                        tasks.add(t);
-                    });
-                    waitMap.remove(task.getTid());
-                }
-
-                // 如果
-                taskMap.remove(task.getTid());
+                processCoroutineEnd(task, e);
                 continue;
             }
             tasks.add(task);
         }
+    }
+
+    private void processCoroutineEnd(Task task, EndOfCoroutineException e) {
+        // 设置当前协程返回值
+        task.setRetVal(e.getRetVal());
+
+        // 唤醒等待当前协程的协程
+        if (waitMap.containsKey(task.getTid())) {
+            waitMap.get(task.getTid()).forEach(t -> {
+                t.setSendVal(e.getRetVal());
+                tasks.add(t);
+            });
+            waitMap.remove(task.getTid());
+        }
+
+        // 移除执行结束的协程
+        taskMap.remove(task.getTid());
     }
 }
