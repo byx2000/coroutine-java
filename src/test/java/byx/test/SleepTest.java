@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SleepTest {
     @Test
-    public void test() {
+    public void testSleep() {
         int count = 100000;
         int maxSleepSecond = 1;
         double t1 = runOnCoroutine(count, maxSleepSecond);
