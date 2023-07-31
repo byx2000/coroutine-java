@@ -7,6 +7,7 @@ import byx.test.exception.StackOverflowException;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,8 +29,11 @@ public class PermutationTest {
             permutation2(0, nums, new boolean[n], new LinkedList<>(), r1).run();
             List<List<Integer>> r2 = new ArrayList<>();
             permutation3(0, nums, new boolean[n], new LinkedList<>(), r2).run();
+            List<List<Integer>> r3 = new ArrayList<>();
+            permutation4(0, nums, new boolean[n], new LinkedList<>(), r3).run();
             assertEquals(ans, r1);
             assertEquals(ans, r2);
+            assertEquals(ans, r3);
         }
     }
 
@@ -41,6 +45,8 @@ public class PermutationTest {
             () -> permutation2(0, new int[10000], new boolean[10000], new LinkedList<>(), new ArrayList<>()).run(1000000));
         assertThrows(StackOverflowException.class,
             () -> permutation3(0, new int[10000], new boolean[10000], new LinkedList<>(), new ArrayList<>()).run(10000));
+        assertThrows(StackOverflowException.class,
+            () -> permutation4(0, new int[10000], new boolean[10000], new LinkedList<>(), new ArrayList<>()).run(10000));
     }
 
     @Test
@@ -137,6 +143,27 @@ public class PermutationTest {
                 }
                 return empty();
             })
+        );
+    }
+
+    private Thunk<Void> permutation4(int index, int[] nums, boolean[] flag, LinkedList<Integer> path, List<List<Integer>> result) {
+        if (index == nums.length) {
+            result.add(new ArrayList<>(path));
+            return empty();
+        }
+
+        return iterate(
+            Arrays.stream(nums).iterator(),
+            (i, n) -> {
+                if (!flag[i]) {
+                    return exec(() -> flag[i] = true)
+                        .then(() -> path.addLast(n))
+                        .then(() -> permutation4(index + 1, nums, flag, path, result))
+                        .then(() -> path.removeLast())
+                        .then(() -> flag[i] = false);
+                }
+                return empty();
+            }
         );
     }
 

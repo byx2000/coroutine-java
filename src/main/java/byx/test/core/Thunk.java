@@ -2,6 +2,8 @@ package byx.test.core;
 
 import byx.test.exception.EndOfCoroutineException;
 
+import java.util.Iterator;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -68,6 +70,19 @@ public interface Thunk<T> {
 
     static <T, U> Thunk<T> loop(Supplier<Boolean> condition, Runnable update, Supplier<Thunk<U>> body) {
         return loop(condition, exec(update), exec(body));
+    }
+
+    static <T, E> Thunk<T> iterate(Iterable<E> iterable, BiFunction<Integer, E, Thunk<?>> body) {
+        return iterate(iterable.iterator(), body);
+    }
+
+    static <T, E> Thunk<T> iterate(Iterator<E> iterator, BiFunction<Integer, E, Thunk<?>> body) {
+        int[] var = new int[]{0};
+        return loop(
+            iterator::hasNext,
+            () -> var[0]++,
+            () -> body.apply(var[0], iterator.next())
+        );
     }
 
     static <T> Thunk<T> repeat(int times, Thunk<?> body) {
