@@ -46,7 +46,7 @@ public class Coroutine {
         throw new EndOfCoroutineException(ret);
     }
 
-    public  <T> T run() throws EndOfCoroutineException {
+    public <T> T run() throws EndOfCoroutineException {
         return run(null);
     }
 }

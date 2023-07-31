@@ -5,55 +5,72 @@ import byx.test.core.Thunk;
 
 import java.util.function.Consumer;
 
-import static byx.test.core.Thunk.*;
+import static byx.test.core.Thunk.pause;
 
-public class SystemCall {
-    public static final String CREATE_TASK = "createTask";
-    public static final String WAIT = "wait";
-    public static final String AWAIT = "await";
-    public static final String WITH_CONTINUATION = "withContinuation";
+public interface SystemCall {
+    void execute(Task currentTask, Dispatcher dispatcher);
 
-    private final String name;
-    private final Object arg;
-
-    public SystemCall(String name, Object arg) {
-        this.name = name;
-        this.arg = arg;
+    static SystemCall createTaskCall(Coroutine coroutine) {
+        return (currentTask, dispatcher) -> {
+            Task newTask = dispatcher.addTask(coroutine);
+            currentTask.setSendVal(newTask);
+            dispatcher.addToReady(currentTask);
+        };
     }
 
-    public String getName() {
-        return name;
+    static SystemCall awaitCall(Coroutine coroutine) {
+        return (currentTask, dispatcher) -> {
+            Task newTask = dispatcher.addTask(coroutine);
+            dispatcher.setTaskWaiting(currentTask, newTask);
+        };
     }
 
-    public Object getArg() {
-        return arg;
+    static SystemCall waitCall(Task task) {
+        return (currentTask, dispatcher) -> {
+            // 如果协程已结束，则无需等待，直接返回
+            // 否则将当前协程加入等待队列
+            if (dispatcher.isEnd(task)) {
+                currentTask.setSendVal(task.getRetVal());
+                dispatcher.addToReady(currentTask);
+            } else {
+                dispatcher.setTaskWaiting(currentTask, task);
+            }
+        };
     }
 
-    public static Thunk<Task> createTask(Coroutine coroutine) {
-        return pause(new SystemCall(CREATE_TASK, coroutine));
+    static SystemCall withContinuationCall(Consumer<Continuation> callback) {
+        return (currentTask, dispatcher) ->
+            callback.accept(value -> {
+                currentTask.setSendVal(value);
+                dispatcher.addToReady(currentTask);
+            });
     }
 
-    public static <T> Thunk<T> wait(Task task, Class<T> retType) {
+    static Thunk<Task> createTask(Coroutine coroutine) {
+        return pause(createTaskCall(coroutine));
+    }
+
+    static <T> Thunk<T> wait(Task task, Class<T> retType) {
         return wait(task);
     }
 
-    public static <T> Thunk<T> wait(Task task) {
-        return pause(new SystemCall(WAIT, task));
+    static <T> Thunk<T> wait(Task task) {
+        return pause(waitCall(task));
     }
 
-    public static <T> Thunk<T> await(Coroutine coroutine) {
-        return pause(new SystemCall(AWAIT, coroutine));
+    static <T> Thunk<T> await(Coroutine coroutine) {
+        return pause(awaitCall(coroutine));
     }
 
-    public static <T> Thunk<T> await(Coroutine coroutine, Class<T> retType) {
+    static <T> Thunk<T> await(Coroutine coroutine, Class<T> retType) {
         return await(coroutine);
     }
 
-    public static <T> Thunk<T> withContinuation(Consumer<Continuation> callback) {
-        return pause(new SystemCall(WITH_CONTINUATION, callback));
+    static <T> Thunk<T> withContinuation(Consumer<Continuation> callback) {
+        return pause(withContinuationCall(callback));
     }
 
-    public static <T> Thunk<T> withContinuation(Consumer<Continuation> callback, Class<T> retType) {
+    static <T> Thunk<T> withContinuation(Consumer<Continuation> callback, Class<T> retType) {
         return withContinuation(callback);
     }
 }

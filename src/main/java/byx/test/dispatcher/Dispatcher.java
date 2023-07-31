@@ -9,73 +9,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 
 public class Dispatcher {
     private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
     private final Map<Long, Task> taskMap = new HashMap<>();
     private final Map<Long, List<Task>> waitMap = new HashMap<>();
 
-    public long addTask(Coroutine coroutine) {
+    public Task addTask(Coroutine coroutine) {
         Task task = new Task(coroutine);
         tasks.add(task);
         taskMap.put(task.getTid(), task);
-        return task.getTid();
+        return task;
+    }
+
+    void addToReady(Task task) {
+        tasks.add(task);
+    }
+
+    void setTaskWaiting(Task task, Task taskToWait) {
+        waitMap.computeIfAbsent(taskToWait.getTid(), t -> new ArrayList<>()).add(task);
+    }
+
+    public boolean isEnd(Task task) {
+        return !taskMap.containsKey(task.getTid());
     }
 
     public void run() {
         while (!taskMap.isEmpty()) {
-            Task task;
+            // 从就绪队列中取出第一个协程，如果队列为空则阻塞等待
+            Task currentTask;
             try {
-                task = tasks.take();
+                currentTask = tasks.take();
             } catch (InterruptedException e) {
                 break;
             }
 
             try {
-                Object ret = task.run();
+                // 执行当前协程
+                Object ret = currentTask.run();
+
+                // 如果协程返回一个SystemCall，则处理SystemCall
+                // 否则将当前协程加入就绪队列末尾
                 if (ret instanceof SystemCall systemCall) {
-                    switch (systemCall.getName()) {
-                        case SystemCall.AWAIT -> {
-                            Coroutine coroutine = (Coroutine) systemCall.getArg();
-                            long newTid = addTask(coroutine);
-                            waitMap.put(newTid, new ArrayList<>(List.of(task)));
-                            continue;
-                        }
-                        case SystemCall.CREATE_TASK -> {
-                            Coroutine coroutine = (Coroutine) systemCall.getArg();
-                            long newTid = addTask(coroutine);
-                            task.setSendVal(taskMap.get(newTid));
-                        }
-                        case SystemCall.WAIT -> {
-                            Task waitTask = (Task) systemCall.getArg();
-
-                            // 如果协程已结束，则无需等待，直接返回
-                            if (!taskMap.containsKey(waitTask.getTid())) {
-                                task.setSendVal(waitTask.getRetVal());
-                                break;
-                            }
-
-                            // 将当前协程加入等待队列
-                            waitMap.computeIfAbsent(waitTask.getTid(), t -> new ArrayList<>()).add(task);
-                            continue;
-                        }
-                        case SystemCall.WITH_CONTINUATION -> {
-                            Consumer<Continuation> callback = (Consumer<Continuation>) systemCall.getArg();
-                            callback.accept(value -> {
-                                task.setSendVal(value);
-                                tasks.add(task);
-                            });
-                            continue;
-                        }
-                        default -> throw new RuntimeException("unknown system call: " + systemCall.getName());
-                    }
+                    systemCall.execute(currentTask, this);
+                } else {
+                    addToReady(currentTask);
                 }
             } catch (EndOfCoroutineException e) {
-                processCoroutineEnd(task, e);
-                continue;
+                // 协程运行结束，执行善后操作
+                processCoroutineEnd(currentTask, e);
             }
-            tasks.add(task);
         }
     }
 

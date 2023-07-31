@@ -120,17 +120,13 @@ public interface Thunk<T> {
     @SuppressWarnings("unchecked")
     default T run(int maxStackSize) {
         Coroutine co = toCoroutine(maxStackSize);
-        Object ret;
-
-        try {
-            while (true) {
+        while (true) {
+            try {
                 co.run();
+            } catch (EndOfCoroutineException e) {
+                return (T) e.getRetVal();
             }
-        } catch (EndOfCoroutineException e) {
-            ret = e.getRetVal();
         }
-
-        return (T) ret;
     }
 
     default T run() {
