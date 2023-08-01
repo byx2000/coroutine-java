@@ -26,6 +26,7 @@ public class Coroutine {
 
             Object top = stack.peek();
             if (top instanceof Empty) {
+                ret = null;
                 stack.pop();
             } else if (top instanceof Value<?> v) {
                 stack.pop();
