@@ -118,24 +118,24 @@ public class GameOfLifeTest {
         }
         return alive;
     }
+}
 
-    private static class Query {
-        private final int r, c;
+class Query {
+    public final int r, c;
 
-        private Query(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
+    public Query(int r, int c) {
+        this.r = r;
+        this.c = c;
     }
+}
 
-    private static class Transition {
-        private final int r, c;
-        private final boolean alive;
+class Transition {
+    public final int r, c;
+    public final boolean alive;
 
-        private Transition(int r, int c, boolean alive) {
-            this.r = r;
-            this.c = c;
-            this.alive = alive;
-        }
+    public Transition(int r, int c, boolean alive) {
+        this.r = r;
+        this.c = c;
+        this.alive = alive;
     }
 }

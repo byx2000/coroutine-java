@@ -36,20 +36,6 @@ public class ListNodeTest {
         assertNull(p);
     }
 
-    private static class ListNode {
-        private int val;
-        private ListNode next;
-
-        private ListNode(int val) {
-            this.val = val;
-        }
-
-        private ListNode(int val, ListNode next) {
-            this.val = val;
-            this.next = next;
-        }
-    }
-
     private ListNode buildList(int length) {
         ListNode head = new ListNode(1);
         ListNode p = head;
@@ -82,5 +68,14 @@ public class ListNodeTest {
                 head.next = null;
                 return p;
             });
+    }
+}
+
+class ListNode {
+    public int val;
+    public ListNode next;
+
+    public ListNode(int val) {
+        this.val = val;
     }
 }

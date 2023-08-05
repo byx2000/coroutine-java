@@ -133,8 +133,8 @@ public class PermutationTest {
         return loop(
             () -> i[0] < nums.length,
             () -> i[0]++,
-            exec(() -> value(flag[i[0]])).flatMap(f -> {
-                if (!f) {
+            exec(() -> {
+                if (!flag[i[0]]) {
                     return exec(() -> flag[i[0]] = true)
                         .then(() -> path.addLast(nums[i[0]]))
                         .then(() -> permutation3(index + 1, nums, flag, path, result))
@@ -176,8 +176,8 @@ public class PermutationTest {
         return loop(
             () -> i[0] < nums.length,
             () -> i[0]++,
-            exec(() -> value(flag[i[0]])).flatMap(f -> {
-                if (!f) {
+            exec(() -> {
+                if (!flag[i[0]]) {
                     return exec(() -> flag[i[0]] = true)
                         .then(() -> path.addLast(nums[i[0]]))
                         .then(() -> permutationIterator(index + 1, nums, flag, path))

@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 
 /**
  * 封装延迟执行的代码片段
- *
  * @param <T> 返回类型
  */
 public interface Thunk<T> {
@@ -33,6 +32,10 @@ public interface Thunk<T> {
         return new Value<>(value);
     }
 
+    static <T> Thunk<T> value(Supplier<T> supplier) {
+        return empty().flatMap(r -> value(supplier.get()));
+    }
+
     static <T> Thunk<T> pause(Object value) {
         return new Pause<>(value);
     }
@@ -50,10 +53,13 @@ public interface Thunk<T> {
     }
 
     static <T> Thunk<T> loop(Supplier<Boolean> condition, Thunk<?> body) {
-        if (!condition.get()) {
-            return empty();
-        }
-        return body.then(() -> loop(condition, body));
+        return exec(() -> {
+            if (!condition.get()) {
+                return empty();
+            }
+            return body.then(() -> loop(condition, body));
+        });
+
     }
 
     static <T, U> Thunk<T> loop(Supplier<Boolean> condition, Supplier<Thunk<U>> body) {
