@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import static byx.test.dispatcher.SystemCall.withContinuation;
 
+/**
+ * 协程sleep实现
+ */
 public class Sleeper {
     private static class Item implements Delayed {
         private final long time;
@@ -46,6 +49,11 @@ public class Sleeper {
         bgThread.start();
     }
 
+    /**
+     * 让当前协程sleep指定时间
+     * @param time sheep持续时间
+     * @param unit 时间单位
+     */
     public static <T> Thunk<T> sleep(long time, TimeUnit unit) {
         return withContinuation(c -> dq.add(new Item(time, unit, c::resume)));
     }

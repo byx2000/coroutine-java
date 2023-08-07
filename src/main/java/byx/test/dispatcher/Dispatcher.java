@@ -10,11 +10,19 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * 协程调度器
+ */
 public class Dispatcher {
     private final BlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
     private final Map<Long, Task> taskMap = new HashMap<>();
     private final Map<Long, List<Task>> waitMap = new HashMap<>();
 
+    /**
+     * 添加任务
+     * @param coroutine 协程
+     * @return 添加的任务
+     */
     public Task addTask(Coroutine coroutine) {
         Task task = new Task(coroutine);
         tasks.add(task);
@@ -30,10 +38,13 @@ public class Dispatcher {
         waitMap.computeIfAbsent(taskToWait.getTid(), t -> new ArrayList<>()).add(task);
     }
 
-    public boolean isEnd(Task task) {
+    boolean isEnd(Task task) {
         return !taskMap.containsKey(task.getTid());
     }
 
+    /**
+     * 运行事件循环
+     */
     public void run() {
         while (!taskMap.isEmpty()) {
             // 从就绪队列中取出第一个协程，如果队列为空则阻塞等待
