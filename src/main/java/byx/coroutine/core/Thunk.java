@@ -208,7 +208,7 @@ public interface Thunk<T> {
     default Thunk<T> then(Runnable runnable) {
         return flatMap(r -> {
             runnable.run();
-            return empty();
+            return value(r);
         });
     }
 
@@ -227,7 +227,7 @@ public interface Thunk<T> {
     default Thunk<T> then(Consumer<T> consumer) {
         return flatMap(r -> {
             consumer.accept(r);
-            return empty();
+            return value(r);
         });
     }
 
