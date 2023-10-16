@@ -1,12 +1,28 @@
 package byx.coroutine;
 
+import byx.coroutine.core.Coroutine;
 import byx.coroutine.core.Thunk;
 import org.junit.jupiter.api.Test;
 
-import static byx.coroutine.core.Thunk.value;
+import static byx.coroutine.core.Thunk.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ThunkTest {
+    @Test
+    public void testLoopForever() {
+        StringBuffer sb = new StringBuffer();
+        Coroutine coroutine = exec(() -> sb.append("hello"))
+            .then(pause())
+            .loopForever()
+            .toCoroutine();
+
+        for (int i = 0; i < 100; i++) {
+            coroutine.run();
+        }
+
+        assertEquals("hello".repeat(100), sb.toString());
+    }
+
     @Test
     public void testValuePass1() {
         Thunk<Integer> thunk = value(123)

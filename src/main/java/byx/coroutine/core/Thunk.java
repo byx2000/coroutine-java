@@ -164,20 +164,6 @@ public interface Thunk<T> {
     }
 
     /**
-     * 对body重复执行指定次数
-     * @param times 重复执行的次数
-     * @param body 循环体
-     */
-    static <T> Thunk<T> repeat(int times, Thunk<?> body) {
-        int[] var = new int[]{0};
-        return loop(
-            () -> var[0] < times,
-            () -> var[0]++,
-            body
-        );
-    }
-
-    /**
      * 将上一个Thunk的结果映射成一个新的Thunk，并接着执行新的Thunk
      * @param mapper mapper
      */
@@ -229,6 +215,26 @@ public interface Thunk<T> {
             consumer.accept(r);
             return value(r);
         });
+    }
+
+    /**
+     * 重复执行指定次数
+     * @param times 重复次数
+     */
+    default <U> Thunk<U> repeat(int times) {
+        int[] var = new int[]{0};
+        return loop(
+            () -> var[0] < times,
+            () -> var[0]++,
+            this
+        );
+    }
+
+    /**
+     * 无限循环
+     */
+    default <U> Thunk<U> loopForever() {
+        return loop(() -> true, this);
     }
 
     /**
