@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.empty;
-import static byx.coroutine.core.Thunk.pause;
+import static byx.coroutine.core.Thunks.empty;
+import static byx.coroutine.core.Thunks.pause;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class GameOfLifeTest {

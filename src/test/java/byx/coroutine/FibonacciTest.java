@@ -5,8 +5,9 @@ import byx.coroutine.core.Thunk;
 import byx.coroutine.exception.StackOverflowException;
 import org.junit.jupiter.api.Test;
 
-import static byx.coroutine.core.Thunk.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static byx.coroutine.core.Thunks.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FibonacciTest {
     @Test
@@ -39,7 +40,7 @@ public class FibonacciTest {
 
     private Thunk<Long> fibonacci2(long n) {
         if (n == 1 || n == 2) {
-            return Thunk.value(1L);
+            return value(1L);
         }
         return exec(() -> fibonacci2(n - 1))
             .flatMap(a -> exec(() -> fibonacci2(n - 2))

@@ -11,8 +11,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static byx.coroutine.core.Thunks.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PermutationTest {
     @Test

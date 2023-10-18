@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class SudokuTest {

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BinaryTreeTest {
@@ -236,7 +236,7 @@ public class BinaryTreeTest {
         }
 
         return exec(() -> inorderIterator(node.left))
-            .then(pause(node.val))
+            .pause(node.val)
             .then(() -> inorderIterator(node.right));
     }
 
@@ -247,7 +247,7 @@ public class BinaryTreeTest {
 
         return exec(() -> postorderIterator(node.left))
             .then(() -> postorderIterator(node.right))
-            .then(pause(node.val));
+            .pause(node.val);
     }
 }
 

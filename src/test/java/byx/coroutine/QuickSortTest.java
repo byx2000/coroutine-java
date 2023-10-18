@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.empty;
+import static byx.coroutine.core.Thunks.exec;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class QuickSortTest {

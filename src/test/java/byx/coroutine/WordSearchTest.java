@@ -3,8 +3,8 @@ package byx.coroutine;
 import byx.coroutine.core.Thunk;
 import org.junit.jupiter.api.Test;
 
-import static byx.coroutine.core.Thunk.exec;
-import static byx.coroutine.core.Thunk.value;
+import static byx.coroutine.core.Thunks.exec;
+import static byx.coroutine.core.Thunks.value;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

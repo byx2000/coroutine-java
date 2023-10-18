@@ -5,7 +5,7 @@ import byx.coroutine.core.Thunk;
 
 import java.util.function.Consumer;
 
-import static byx.coroutine.core.Thunk.pause;
+import static byx.coroutine.core.Thunks.pause;
 
 /**
  * 协程系统调用

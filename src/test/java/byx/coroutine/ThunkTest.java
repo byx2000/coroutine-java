@@ -4,7 +4,7 @@ import byx.coroutine.core.Coroutine;
 import byx.coroutine.core.Thunk;
 import org.junit.jupiter.api.Test;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ThunkTest {
@@ -12,7 +12,7 @@ public class ThunkTest {
     public void testLoopForever() {
         StringBuffer sb = new StringBuffer();
         Coroutine coroutine = exec(() -> sb.append("hello"))
-            .then(pause())
+            .pause()
             .loopForever()
             .toCoroutine();
 

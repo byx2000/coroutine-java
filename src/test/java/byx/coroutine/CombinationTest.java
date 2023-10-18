@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.empty;
+import static byx.coroutine.core.Thunks.exec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CombinationTest {

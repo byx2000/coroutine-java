@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.*;
 import static byx.coroutine.dispatcher.SystemCall.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,11 +19,11 @@ public class DispatcherTest {
         List<String> output = new ArrayList<>();
 
         Coroutine co1 = exec(() -> output.add("co1 begin"))
-            .then(exec(() -> output.add("co1")).then(pause()).repeat(2))
+            .then(exec(() -> output.add("co1")).pause().repeat(2))
             .then(() -> output.add("co1 end"))
             .toCoroutine();
         Coroutine co2 = exec(() -> output.add("co2 begin"))
-            .then(exec(() -> output.add("co2")).then(pause()).repeat(3))
+            .then(exec(() -> output.add("co2")).pause().repeat(3))
             .then(() -> output.add("co2 end"))
             .then(value(123))
             .toCoroutine();
@@ -32,7 +32,7 @@ public class DispatcherTest {
             .then(r -> output.add("co1 return " + r))
             .then(await(co2, Integer.class))
             .then(r -> output.add("co2 return " + r))
-            .then(exec(() -> output.add("co3")).then(pause()).repeat(4))
+            .then(exec(() -> output.add("co3")).pause().repeat(4))
             .then(() -> output.add("co3 end"))
             .toCoroutine();
 
@@ -66,11 +66,11 @@ public class DispatcherTest {
         List<String> output = new ArrayList<>();
 
         Coroutine co1 = exec(() -> output.add("co1 begin"))
-            .then(exec(() -> output.add("co1")).then(pause()).repeat(3))
+            .then(exec(() -> output.add("co1")).pause().repeat(3))
             .then(() -> output.add("co1 end"))
             .toCoroutine();
         Coroutine co2 = exec(() -> output.add("co2 begin"))
-            .then(exec(() -> output.add("co2")).then(pause()).repeat(4))
+            .then(exec(() -> output.add("co2")).pause().repeat(4))
             .then(() -> output.add("co2 end"))
             .toCoroutine();
         Coroutine co3 = exec(() -> output.add("co3 begin"))
@@ -84,7 +84,7 @@ public class DispatcherTest {
                 assertNotNull(t2);
                 output.add("co2 created");
             })
-            .then(exec(() -> output.add("co3")).then(pause()).repeat(6))
+            .then(exec(() -> output.add("co3")).pause().repeat(6))
             .then(() -> output.add("co3 end"))
             .toCoroutine();
 
@@ -122,12 +122,12 @@ public class DispatcherTest {
         List<String> output = new ArrayList<>();
 
         Coroutine co1 = exec(() -> output.add("co1 begin"))
-            .then(exec(() -> output.add("co1")).then(pause()).repeat(3))
+            .then(exec(() -> output.add("co1")).pause().repeat(3))
             .then(() -> output.add("co1 end"))
             .then(value("hello"))
             .toCoroutine();
         Coroutine co2 = exec(() -> output.add("co2 begin"))
-            .then(exec(() -> output.add("co2")).then(pause()).repeat(4))
+            .then(exec(() -> output.add("co2")).pause().repeat(4))
             .then(() -> output.add("co2 end"))
             .then(value("hi"))
             .toCoroutine();
@@ -138,7 +138,7 @@ public class DispatcherTest {
                     .then(r1 -> output.add("co1 return " + r1))
                     .then(SystemCall.wait(t2))
                     .then(r2 -> output.add("co2 return " + r2))))
-            .then(exec(() -> output.add("co3")).then(pause()).repeat(6))
+            .then(exec(() -> output.add("co3")).pause().repeat(6))
             .then(() -> output.add("co3 end"))
             .toCoroutine();
 
@@ -176,12 +176,12 @@ public class DispatcherTest {
         List<String> output = new ArrayList<>();
 
         Coroutine co1 = exec(() -> output.add("co1 begin"))
-            .then(exec(() -> output.add("co1")).then(pause()).repeat(4))
+            .then(exec(() -> output.add("co1")).pause().repeat(4))
             .then(() -> output.add("co1 end"))
             .then(value("hello"))
             .toCoroutine();
         Coroutine co2 = exec(() -> output.add("co2 begin"))
-            .then(exec(() -> output.add("co2")).then(pause()).repeat(1))
+            .then(exec(() -> output.add("co2")).pause().repeat(1))
             .then(() -> output.add("co2 end"))
             .then(value("hi"))
             .toCoroutine();
@@ -192,7 +192,7 @@ public class DispatcherTest {
                     .then(r1 -> output.add("co1 return " + r1))
                     .then(SystemCall.wait(t2))
                     .then(r2 -> output.add("co2 return " + r2))))
-            .then(exec(() -> output.add("co3")).then(pause()).repeat(6))
+            .then(exec(() -> output.add("co3")).pause().repeat(6))
             .then(() -> output.add("co3 end"))
             .toCoroutine();
 
@@ -297,7 +297,7 @@ public class DispatcherTest {
             .then(() -> output.add("co1 end"))
             .toCoroutine();
         Coroutine co2 = exec(() -> output.add("co2 begin"))
-            .then(exec(() -> output.add("co2")).then(pause()).repeat(5))
+            .then(exec(() -> output.add("co2")).pause().repeat(5))
             .then(() -> output.add("co2 end"))
             .toCoroutine();
 

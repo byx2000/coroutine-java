@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static byx.coroutine.core.Thunk.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static byx.coroutine.core.Thunks.loop;
+import static byx.coroutine.core.Thunks.pause;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CountDownTest {
     @Test

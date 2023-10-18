@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.exec;
+import static byx.coroutine.core.Thunks.value;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ListNodeTest {

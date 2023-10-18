@@ -3,7 +3,8 @@ package byx.coroutine;
 import byx.coroutine.core.Thunk;
 import org.junit.jupiter.api.Test;
 
-import static byx.coroutine.core.Thunk.*;
+import static byx.coroutine.core.Thunks.exec;
+import static byx.coroutine.core.Thunks.value;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SumTest {
