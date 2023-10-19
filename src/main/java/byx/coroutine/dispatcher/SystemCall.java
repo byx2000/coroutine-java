@@ -13,48 +13,12 @@ import static byx.coroutine.core.Thunks.pause;
 public interface SystemCall {
     void execute(Task currentTask, Dispatcher dispatcher);
 
-    static SystemCall createTaskCall(Coroutine coroutine) {
-        return (currentTask, dispatcher) -> {
-            Task newTask = dispatcher.addTask(coroutine);
-            currentTask.setSendVal(newTask);
-            dispatcher.addToReady(currentTask);
-        };
-    }
-
-    static SystemCall awaitCall(Coroutine coroutine) {
-        return (currentTask, dispatcher) -> {
-            Task newTask = dispatcher.addTask(coroutine);
-            dispatcher.setTaskWaiting(currentTask, newTask);
-        };
-    }
-
-    static SystemCall waitCall(Task task) {
-        return (currentTask, dispatcher) -> {
-            // 如果协程已结束，则无需等待，直接返回
-            // 否则将当前协程加入等待队列
-            if (dispatcher.isEnd(task)) {
-                currentTask.setSendVal(task.getRetVal());
-                dispatcher.addToReady(currentTask);
-            } else {
-                dispatcher.setTaskWaiting(currentTask, task);
-            }
-        };
-    }
-
-    static SystemCall withContinuationCall(Consumer<Continuation> callback) {
-        return (currentTask, dispatcher) ->
-            callback.accept(value -> {
-                currentTask.setSendVal(value);
-                dispatcher.addToReady(currentTask);
-            });
-    }
-
     /**
      * 创建新任务
      * @param coroutine 协程
      */
     static Thunk<Task> createTask(Coroutine coroutine) {
-        return pause(createTaskCall(coroutine));
+        return pause(new CreateTaskCall(coroutine));
     }
 
     /**
@@ -62,7 +26,7 @@ public interface SystemCall {
      * @param task 任务
      */
     static <T> Thunk<T> wait(Task task) {
-        return pause(waitCall(task));
+        return pause(new WaitCall(task));
     }
 
     /**
@@ -79,7 +43,7 @@ public interface SystemCall {
      * @param coroutine 协程
      */
     static <T> Thunk<T> await(Coroutine coroutine) {
-        return pause(awaitCall(coroutine));
+        return pause(new AwaitCall(coroutine));
     }
 
     /**
@@ -96,7 +60,7 @@ public interface SystemCall {
      * @param callback continuation回调
      */
     static <T> Thunk<T> withContinuation(Consumer<Continuation> callback) {
-        return pause(withContinuationCall(callback));
+        return pause(new WithContinuationCall(callback));
     }
 
     /**
@@ -106,5 +70,70 @@ public interface SystemCall {
      */
     static <T> Thunk<T> withContinuation(Consumer<Continuation> callback, Class<T> retType) {
         return withContinuation(callback);
+    }
+
+    class CreateTaskCall implements SystemCall {
+        private final Coroutine coroutine;
+
+        public CreateTaskCall(Coroutine coroutine) {
+            this.coroutine = coroutine;
+        }
+
+        @Override
+        public void execute(Task currentTask, Dispatcher dispatcher) {
+            Task newTask = dispatcher.addTask(coroutine);
+            currentTask.setSendVal(newTask);
+            dispatcher.addToReady(currentTask);
+        }
+    }
+
+    class AwaitCall implements SystemCall {
+        private final Coroutine coroutine;
+
+        public AwaitCall(Coroutine coroutine) {
+            this.coroutine = coroutine;
+        }
+
+        @Override
+        public void execute(Task currentTask, Dispatcher dispatcher) {
+            Task newTask = dispatcher.addTask(coroutine);
+            dispatcher.setTaskWaiting(currentTask, newTask);
+        }
+    }
+
+    class WaitCall implements SystemCall {
+        private final Task task;
+
+        public WaitCall(Task task) {
+            this.task = task;
+        }
+
+        @Override
+        public void execute(Task currentTask, Dispatcher dispatcher) {
+            // 如果协程已结束，则无需等待，直接返回
+            // 否则将当前协程加入等待队列
+            if (dispatcher.isEnd(task)) {
+                currentTask.setSendVal(task.getRetVal());
+                dispatcher.addToReady(currentTask);
+            } else {
+                dispatcher.setTaskWaiting(currentTask, task);
+            }
+        }
+    }
+
+    class WithContinuationCall implements SystemCall {
+        private final Consumer<Continuation> callback;
+
+        public WithContinuationCall(Consumer<Continuation> callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void execute(Task currentTask, Dispatcher dispatcher) {
+            callback.accept(value -> {
+                currentTask.setSendVal(value);
+                dispatcher.addToReady(currentTask);
+            });
+        }
     }
 }
