@@ -1,18 +1,18 @@
 package byx.trampoline.example.coroutine;
 
 import byx.trampoline.core.Coroutine;
-import byx.trampoline.core.Trampoline;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static byx.trampoline.core.Trampolines.*;
+import static byx.trampoline.core.Trampolines.loop;
+import static byx.trampoline.core.Trampolines.pause;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CountDownTest {
     @Test
     public void testCountDown() {
-        Coroutine co = countDown(5).toCoroutine();
+        Coroutine co = countDown(5);
         assertEquals(5, (int) co.run());
         assertEquals(4, (int) co.run());
         assertEquals(10, (int) co.run(10));
@@ -25,7 +25,7 @@ public class CountDownTest {
         assertEquals(12, (int) co.run());
     }
 
-    private Trampoline<Integer> countDown(int n) {
+    private Coroutine countDown(int n) {
         AtomicInteger cnt = new AtomicInteger(n);
         return loop(() -> cnt.get() > 0,
             pause(cnt::get, Integer.class)
@@ -36,6 +36,6 @@ public class CountDownTest {
                         cnt.decrementAndGet();
                     }
                 })
-        );
+        ).toCoroutine();
     }
 }
