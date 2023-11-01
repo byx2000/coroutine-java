@@ -164,6 +164,21 @@ public interface Trampoline<T> {
     }
 
     /**
+     * 将当前Trampoline转换为生成器
+     */
+    default <U> Generator<U> toGenerator() {
+        return new Generator<>(toCoroutine());
+    }
+
+    /**
+     * 将当前Trampoline转换为生成器
+     * @param maxStackSize 最大栈容量
+     */
+    default <U> Generator<U> toGenerator(int maxStackSize) {
+        return new Generator<>(toCoroutine(maxStackSize));
+    }
+
+    /**
      * 运行当前Trampoline
      * @param maxStackSize 最大栈容量
      */
