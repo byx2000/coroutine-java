@@ -3,8 +3,6 @@ package byx.trampoline.core;
 import byx.trampoline.exception.EndOfCoroutineException;
 
 import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -24,6 +22,9 @@ public class Generator<T> implements Iterable<T>, Iterator<T> {
         return this;
     }
 
+    /**
+     * 是否有下一个元素
+     */
     @Override
     public boolean hasNext() {
         if (peek != null) {
@@ -38,6 +39,9 @@ public class Generator<T> implements Iterable<T>, Iterator<T> {
         return true;
     }
 
+    /**
+     * 下一个元素
+     */
     @Override
     public T next() {
         if (peek != null) {
@@ -48,7 +52,10 @@ public class Generator<T> implements Iterable<T>, Iterator<T> {
         return coroutine.run();
     }
 
+    /**
+     * 转换成Stream
+     */
     public Stream<T> stream() {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED), false);
+        return StreamSupport.stream(spliterator(), false);
     }
 }
