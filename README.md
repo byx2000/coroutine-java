@@ -115,7 +115,7 @@ private Trampoline<Void> postorderTraverse2(TreeNode node, List<Integer> result)
 ### 斐波拉契数列生成器
 
 ```java
-private Coroutine fibonacciGenerator(int a, int b) {
+private Generator<Integer> fibonacciGenerator(int a, int b) {
     AtomicInteger x = new AtomicInteger(a);
     AtomicInteger y = new AtomicInteger(b);
 
@@ -126,24 +126,24 @@ private Coroutine fibonacciGenerator(int a, int b) {
             x.set(y.get());
             y.set(t + y.get());
         }))
-        .toCoroutine();
+        .toGenerator();
 }
 
-Coroutine generator = fibonacciGenerator(1, 2);
-List<Integer> nums = Stream.generate(generator::<Integer>run).limit(10).toList();
+Generator<Integer> generator = fibonacciGenerator(1, 2);
+List<Integer> nums = generator.stream().limit(10).toList();
 assertEquals(List.of(1, 2, 3, 5, 8, 13, 21, 34, 55, 89), nums);
 ```
 
 ### 全排列生成器
 
 ```java
-private Coroutine permutationGenerator(int[] nums) {
-    return permutation(0, nums, new boolean[nums.length], new LinkedList<>()).toCoroutine();
+private Generator<List<Integer>> permutationGenerator(int[] nums) {
+    return permutation(0, nums, new boolean[nums.length], new LinkedList<>()).toGenerator();
 }
 
 private Trampoline<Void> permutation(int index, int[] nums, boolean[] flag, LinkedList<Integer> p) {
     if (index == nums.length) {
-        return pause(p);
+        return pause(new ArrayList<>(p));
     }
 
     return loop(0, nums.length, i -> {
@@ -158,14 +158,15 @@ private Trampoline<Void> permutation(int index, int[] nums, boolean[] flag, Link
     });
 }
 
-Coroutine generator = permutationGenerator(new int[]{1, 2, 3});
-assertEquals(List.of(1, 2, 3), generator.run());
-assertEquals(List.of(1, 3, 2), generator.run());
-assertEquals(List.of(2, 1, 3), generator.run());
-assertEquals(List.of(2, 3, 1), generator.run());
-assertEquals(List.of(3, 1, 2), generator.run());
-assertEquals(List.of(3, 2, 1), generator.run());
-assertThrows(EndOfCoroutineException.class, generator::run);
+Generator<List<Integer>> generator = permutationGenerator(new int[]{1, 2, 3});
+assertEquals(List.of(
+    List.of(1, 2, 3),
+    List.of(1, 3, 2),
+    List.of(2, 1, 3),
+    List.of(2, 3, 1),
+    List.of(3, 1, 2),
+    List.of(3, 2, 1)
+), generator.stream().toList());
 ```
 
 ## 协程（Coroutine）
