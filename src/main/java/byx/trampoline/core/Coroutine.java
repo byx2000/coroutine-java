@@ -45,14 +45,14 @@ public class Coroutine {
                 ret = null;
             } else if (top instanceof Value<?> v) {
                 // 返回值设置为指定值
-                ret = v.getValue();
+                ret = v.value();
             } else if (top instanceof Pause<?> p) {
                 // 协程暂停，返回产生的值
-                return (T) p.getValue();
+                return (T) p.value();
             } else if (top instanceof FlatMap<?, ?> flatMap) {
                 // 先对mapper入栈，再对head入栈，这样会先执行head，再执行mapper
-                stack.push(flatMap.getMapper());
-                stack.push(flatMap.getHead());
+                stack.push(flatMap.mapper());
+                stack.push(flatMap.head());
             } else if (top instanceof Function mapper) {
                 // 遇到之前执行FlatMap时插入的mapper，调用mapper.apply产生一个新的Trampoline并入栈
                 stack.push(mapper.apply(ret));

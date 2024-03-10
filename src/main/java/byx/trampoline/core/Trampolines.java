@@ -15,8 +15,9 @@ public class Trampolines {
     /**
      * 空代码段
      */
+    @SuppressWarnings("unchecked")
     public static <T> Trampoline<T> empty() {
-        return Empty.getInstance();
+        return (Trampoline<T>) Empty.INSTANCE;
     }
 
     /**
