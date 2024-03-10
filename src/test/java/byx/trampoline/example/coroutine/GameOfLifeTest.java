@@ -67,10 +67,10 @@ public class GameOfLifeTest {
         Object ret = co.run();
         while (ret != null) {
             if (ret instanceof Query q) {
-                ret = co.run(grid[(q.r + row) % row][(q.c + col) % col] == '*');
+                ret = co.run(grid[(q.r() + row) % row][(q.c() + col) % col] == '*');
             } else {
                 Transition t = (Transition) ret;
-                nextGrid[(t.r + row) % row][(t.c + col) % col] = (t.alive ? '*' : '.');
+                nextGrid[(t.r() + row) % row][(t.c() + col) % col] = (t.alive() ? '*' : '.');
                 ret = co.run();
             }
         }
@@ -120,22 +120,8 @@ public class GameOfLifeTest {
     }
 }
 
-class Query {
-    public final int r, c;
-
-    public Query(int r, int c) {
-        this.r = r;
-        this.c = c;
-    }
+record Query(int r, int c) {
 }
 
-class Transition {
-    public final int r, c;
-    public final boolean alive;
-
-    public Transition(int r, int c, boolean alive) {
-        this.r = r;
-        this.c = c;
-        this.alive = alive;
-    }
+record Transition(int r, int c, boolean alive) {
 }
