@@ -12,12 +12,14 @@ import java.util.function.Supplier;
 public class Trampolines {
     private Trampolines() {}
 
+    private static final Trampoline<?> EMPTY = new Value<>(null);
+
     /**
      * 空代码段
      */
     @SuppressWarnings("unchecked")
     public static <T> Trampoline<T> empty() {
-        return (Trampoline<T>) Empty.INSTANCE;
+        return (Trampoline<T>) EMPTY;
     }
 
     /**

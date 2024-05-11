@@ -40,10 +40,7 @@ public class Coroutine {
             }
 
             Object top = stack.pop();
-            if (top instanceof Empty) {
-                // 空代码段，不执行任何操作，返回值为null
-                ret = null;
-            } else if (top instanceof Value<?> v) {
+            if (top instanceof Value<?> v) {
                 // 返回值设置为指定值
                 ret = v.value();
             } else if (top instanceof Pause<?> p) {
