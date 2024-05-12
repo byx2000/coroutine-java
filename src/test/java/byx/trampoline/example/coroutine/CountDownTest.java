@@ -27,15 +27,15 @@ public class CountDownTest {
 
     private Coroutine countDown(int n) {
         AtomicInteger cnt = new AtomicInteger(n);
-        return loop(() -> cnt.get() > 0,
-            pause(cnt::get, Integer.class)
-                .then(reset -> {
-                    if (reset != null) {
-                        cnt.set(reset);
-                    } else {
-                        cnt.decrementAndGet();
-                    }
-                })
+        return loop(
+            () -> cnt.get() > 0,
+            () -> pause(cnt.get(), Integer.class).then(reset -> {
+                if (reset != null) {
+                    cnt.set(reset);
+                } else {
+                    cnt.decrementAndGet();
+                }
+            })
         ).toCoroutine();
     }
 }

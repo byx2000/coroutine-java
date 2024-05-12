@@ -59,26 +59,35 @@ public class Trampolines {
 
     /**
      * 循环
-     * @param condition 条件
+     * @param cond 条件
      * @param body 循环体
      */
-    public static <T> Trampoline<T> loop(Supplier<Boolean> condition, Trampoline<?> body) {
-        return exec(() -> {
-            if (!condition.get()) {
+    public static Trampoline<Void> loop(Trampoline<Boolean> cond, Trampoline<?> body) {
+        return cond.flatMap(b -> {
+            if (b) {
+                return body.then(() -> loop(cond, body));
+            } else {
                 return empty();
             }
-            return body.then(() -> loop(condition, body));
         });
     }
 
     /**
      * 循环
-     * @param condition 条件
-     * @param update 更新
+     * @param condSupplier 条件
+     * @param bodySupplier 循环体
+     */
+    public static Trampoline<Void> loop(Supplier<Boolean> condSupplier, Supplier<Trampoline<?>> bodySupplier) {
+        return loop(value(condSupplier), exec(bodySupplier::get));
+    }
+
+    /**
+     * 循环
+     * @param condSupplier 条件
      * @param body 循环体
      */
-    public static <T> Trampoline<T> loop(Supplier<Boolean> condition, Runnable update, Trampoline<?> body) {
-        return loop(condition, body.then(update));
+    public static Trampoline<Void> loop(Supplier<Boolean> condSupplier, Runnable body) {
+        return loop(value(condSupplier), exec(body));
     }
 
     /**
@@ -86,13 +95,13 @@ public class Trampolines {
      * @param iterable 迭代变量
      * @param bodySupplier 循环体，参数为迭代变量和元素
      */
-    public static <T, E> Trampoline<T> loop(Iterable<E> iterable, BiFunction<Integer, E, Trampoline<?>> bodySupplier) {
+    public static <E> Trampoline<Void> loop(Iterable<E> iterable, BiFunction<Integer, E, Trampoline<?>> bodySupplier) {
         Iterator<E> iterator = iterable.iterator();
         AtomicInteger i = new AtomicInteger(0);
         return loop(
             iterator::hasNext,
-            i::incrementAndGet,
-            exec(() -> bodySupplier.apply(i.get(), iterator.next()))
+            () -> bodySupplier.apply(i.get(), iterator.next())
+                .then(i::incrementAndGet)
         );
     }
 
@@ -102,12 +111,12 @@ public class Trampolines {
      * @param endExclusive 结束
      * @param bodySupplier 循环体，参数为迭代变量
      */
-    public static <T> Trampoline<T> loop(int startInclusive, int endExclusive, Function<Integer, Trampoline<?>> bodySupplier) {
+    public static Trampoline<Void> loop(int startInclusive, int endExclusive, Function<Integer, Trampoline<?>> bodySupplier) {
         AtomicInteger i = new AtomicInteger(startInclusive);
         return loop(
             () -> i.get() < endExclusive,
-            i::incrementAndGet,
-            exec(() -> bodySupplier.apply(i.get()))
+            () -> bodySupplier.apply(i.get())
+                .then(i::incrementAndGet)
         );
     }
 

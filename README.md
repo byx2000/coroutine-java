@@ -120,12 +120,14 @@ private Generator<Integer> fibonacciGenerator(int a, int b) {
     AtomicInteger y = new AtomicInteger(b);
 
     return pause(a)
-        .loop(() -> true, pause(y::get).then(() -> {
-            // (x, y) -> (y, x + y)
-            int t = x.get();
-            x.set(y.get());
-            y.set(t + y.get());
-        }))
+        .loop(
+            () -> true,
+            () -> pause(y.get()).then(() -> {
+                int t = x.get();
+                x.set(y.get());
+                y.set(t + y.get());
+            })
+        )
         .toGenerator();
 }
 
@@ -176,15 +178,15 @@ assertEquals(List.of(
 ```java
 private Coroutine countDown(int n) {
     AtomicInteger cnt = new AtomicInteger(n);
-    return loop(() -> cnt.get() > 0,
-        pause(cnt::get, Integer.class)
-            .then(reset -> {
-                if (reset != null) {
-                    cnt.set(reset);
-                } else {
-                    cnt.decrementAndGet();
-                }
-            })
+    return loop(
+        () -> cnt.get() > 0,
+        () -> pause(cnt.get(), Integer.class).then(reset -> {
+            if (reset != null) {
+                cnt.set(reset);
+            } else {
+                cnt.decrementAndGet();
+            }
+        })
     ).toCoroutine();
 }
 

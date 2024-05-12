@@ -84,18 +84,27 @@ public interface Trampoline<T> {
 
     /**
      * 后接loop
-     * @param condition condition
-     * @param body body
+     * @param condSupplier 条件
+     * @param bodySupplier 循环体
      */
-    default <U> Trampoline<U> loop(Supplier<Boolean> condition, Trampoline<?> body) {
-        return this.then(Trampolines.loop(condition, body));
+    default Trampoline<Void> loop(Supplier<Boolean> condSupplier, Supplier<Trampoline<?>> bodySupplier) {
+        return this.then(Trampolines.loop(condSupplier, bodySupplier));
+    }
+
+    /**
+     * 后接loop
+     * @param condSupplier 条件
+     * @param body 循环体
+     */
+    default Trampoline<Void> loop(Supplier<Boolean> condSupplier, Runnable body) {
+        return this.then(Trampolines.loop(value(condSupplier), Trampolines.exec(body)));
     }
 
     /**
      * 重复执行指定次数
      * @param times 重复次数
      */
-    default <U> Trampoline<U> repeat(int times) {
+    default Trampoline<Void> repeat(int times) {
         return Trampolines.loop(0, times, i -> this);
     }
 

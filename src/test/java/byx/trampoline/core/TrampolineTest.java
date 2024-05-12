@@ -49,8 +49,10 @@ public class TrampolineTest {
         AtomicInteger i = new AtomicInteger(0);
         Trampoline<?> trampoline = loop(
             () -> i.get() <= 5,
-            exec(() -> output.add(i.get()))
-                .then(i::getAndIncrement)
+            () -> {
+                output.add(i.get());
+                i.getAndIncrement();
+            }
         );
         trampoline.run();
         assertEquals(List.of(0, 1, 2, 3, 4, 5), output);
@@ -117,8 +119,10 @@ public class TrampolineTest {
         AtomicInteger i = new AtomicInteger(0);
         Trampoline<?> trampoline = empty().loop(
             () -> i.get() <= 5,
-            exec(() -> output.add(i.get()))
-                .then(i::getAndIncrement)
+            () -> {
+                output.add(i.get());
+                i.getAndIncrement();
+            }
         );
         trampoline.run();
         assertEquals(List.of(0, 1, 2, 3, 4, 5), output);

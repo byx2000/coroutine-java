@@ -22,12 +22,14 @@ public class FibonacciGeneratorTest {
         AtomicInteger y = new AtomicInteger(b);
 
         return pause(a)
-            .loop(() -> true, pause(y::get).then(() -> {
-                // (x, y) -> (y, x + y)
-                int t = x.get();
-                x.set(y.get());
-                y.set(t + y.get());
-            }))
+            .loop(
+                () -> true,
+                () -> pause(y.get()).then(() -> {
+                    int t = x.get();
+                    x.set(y.get());
+                    y.set(t + y.get());
+                })
+            )
             .toGenerator();
     }
 }

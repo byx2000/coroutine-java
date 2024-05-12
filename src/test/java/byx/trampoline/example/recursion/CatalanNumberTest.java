@@ -62,11 +62,10 @@ public class CatalanNumberTest {
         }
 
         AtomicLong res = new AtomicLong(0);
-        return loop(0, (int) n, i ->
-            exec(() -> catalan3(i))
-                .flatMap(a -> exec(() -> catalan3(n - 1 - i))
-                    .map(b -> a * b))
-                .then(res::addAndGet)
+        return loop(0, (int) n, i -> catalan3(i)
+            .flatMap(a -> exec(() -> catalan3(n - 1 - i))
+                .map(b -> a * b))
+            .then(res::addAndGet)
         ).value(res::get);
     }
 }

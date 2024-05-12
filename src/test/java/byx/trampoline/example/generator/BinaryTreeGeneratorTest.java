@@ -100,16 +100,18 @@ public class BinaryTreeGeneratorTest {
         Queue<TreeNode> queue = new LinkedList<>();
         queue.add(node);
 
-        return loop(() -> !queue.isEmpty(), exec(() -> {
-            TreeNode cur = queue.remove();
-            if (cur.left != null) {
-                queue.add(cur.left);
+        return loop(
+            () -> !queue.isEmpty(),
+            () -> {
+                TreeNode cur = queue.remove();
+                if (cur.left != null) {
+                    queue.add(cur.left);
+                }
+                if (cur.right != null) {
+                    queue.add(cur.right);
+                }
+                return pause(cur.val);
             }
-            if (cur.right != null) {
-                queue.add(cur.right);
-            }
-            return pause(cur.val);
-            })
         );
     }
 }

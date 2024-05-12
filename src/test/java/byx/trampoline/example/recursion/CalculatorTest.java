@@ -119,7 +119,7 @@ class Calculator2 {
             .then(r -> res[0] = r)
             .loop(
                 () -> index.get() < expr.length() && (expr.charAt(index.get()) == '+' || expr.charAt(index.get()) == '-'),
-                exec(() -> {
+                () -> {
                     int i = index.getAndIncrement();
                     if (expr.charAt(i) == '+') {
                         return exec(() -> evalTerm(expr, index))
@@ -128,7 +128,7 @@ class Calculator2 {
                         return exec(() -> evalTerm(expr, index))
                             .then(r -> res[0] -= r);
                     }
-                })
+                }
             )
             .value(() -> res[0]);
     }
@@ -142,7 +142,7 @@ class Calculator2 {
             .then(r -> res[0] = r)
             .loop(
                 () -> index.get() < expr.length() && (expr.charAt(index.get()) == '*' || expr.charAt(index.get()) == '/'),
-                exec(() -> {
+                () -> {
                     int i = index.getAndIncrement();
                     if (expr.charAt(i) == '*') {
                         return exec(() -> evalFact(expr, index))
@@ -151,7 +151,7 @@ class Calculator2 {
                         return exec(() -> evalFact(expr, index))
                             .then(r -> res[0] /= r);
                     }
-                })
+                }
             )
             .value(() -> res[0]);
     }
