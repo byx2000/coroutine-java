@@ -151,21 +151,4 @@ public class Trampolines {
     public static <T> Trampoline<T> pause(Class<T> retType) {
         return pause();
     }
-
-    /**
-     * 暂停执行，产生supplier生成的值
-     * @param supplier supplier
-     */
-    public static <T> Trampoline<T> pause(Supplier<Object> supplier) {
-        return exec(() -> pause(supplier.get()));
-    }
-
-    /**
-     * 暂停执行，产生supplier生成的值，恢复执行时接收的值类型为retType
-     * @param supplier supplier
-     * @param retType retType
-     */
-    public static <T> Trampoline<T> pause(Supplier<Object> supplier, Class<T> retType) {
-        return pause(supplier);
-    }
 }

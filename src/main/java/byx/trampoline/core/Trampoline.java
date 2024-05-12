@@ -141,23 +141,6 @@ public interface Trampoline<T> {
     }
 
     /**
-     * 暂停执行，产生supplier生成的值
-     * @param supplier supplier
-     */
-    default <U> Trampoline<U> pause(Supplier<Object> supplier) {
-        return this.then(Trampolines.pause(supplier));
-    }
-
-    /**
-     * 暂停执行，产生supplier生成的值，恢复执行时接收的值类型为retType
-     * @param supplier supplier
-     * @param retType retType
-     */
-    default <U> Trampoline<U> pause(Supplier<Object> supplier, Class<U> retType) {
-        return this.then(Trampolines.pause(supplier, retType));
-    }
-
-    /**
      * 将当前Trampoline转换为协程
      */
     default Coroutine toCoroutine() {
