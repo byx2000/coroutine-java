@@ -76,13 +76,11 @@ public class BinaryTreeTest {
      *  ...
      */
     private TreeNode buildHugeTree() {
-        TreeNode root = new TreeNode(1);
-        TreeNode n = root;
-        for (int i = 2; i <= 100000; i++) {
-            n.left = new TreeNode(i);
-            n = n.left;
+        TreeNode node = new TreeNode(100000);
+        for (int i = 99999; i >= 1; i--) {
+            node = new TreeNode(i, node, null);
         }
-        return root;
+        return node;
     }
 
     private void preorderTraverse1(TreeNode node, List<Integer> result) {
@@ -90,9 +88,9 @@ public class BinaryTreeTest {
             return;
         }
 
-        result.add(node.val);
-        preorderTraverse1(node.left, result);
-        preorderTraverse1(node.right, result);
+        result.add(node.val());
+        preorderTraverse1(node.left(), result);
+        preorderTraverse1(node.right(), result);
     }
 
     private Trampoline<Void> preorderTraverse2(TreeNode node, List<Integer> result) {
@@ -100,9 +98,9 @@ public class BinaryTreeTest {
             return empty();
         }
 
-        return exec(() -> result.add(node.val))
-            .then(() -> preorderTraverse2(node.left, result))
-            .then(() -> preorderTraverse2(node.right, result));
+        return exec(() -> result.add(node.val()))
+            .then(() -> preorderTraverse2(node.left(), result))
+            .then(() -> preorderTraverse2(node.right(), result));
     }
 
     private void inorderTraverse1(TreeNode node, List<Integer> result) {
@@ -110,9 +108,9 @@ public class BinaryTreeTest {
             return;
         }
 
-        inorderTraverse1(node.left, result);
-        result.add(node.val);
-        inorderTraverse1(node.right, result);
+        inorderTraverse1(node.left(), result);
+        result.add(node.val());
+        inorderTraverse1(node.right(), result);
     }
 
     private Trampoline<Void> inorderTraverse2(TreeNode node, List<Integer> result) {
@@ -120,9 +118,9 @@ public class BinaryTreeTest {
             return empty();
         }
 
-        return exec(() -> inorderTraverse2(node.left, result))
-            .then(() -> result.add(node.val))
-            .then(() -> inorderTraverse2(node.right, result));
+        return exec(() -> inorderTraverse2(node.left(), result))
+            .then(() -> result.add(node.val()))
+            .then(() -> inorderTraverse2(node.right(), result));
     }
 
     private void postorderTraverse1(TreeNode node, List<Integer> result) {
@@ -130,9 +128,9 @@ public class BinaryTreeTest {
             return;
         }
 
-        postorderTraverse1(node.left, result);
-        postorderTraverse1(node.right, result);
-        result.add(node.val);
+        postorderTraverse1(node.left(), result);
+        postorderTraverse1(node.right(), result);
+        result.add(node.val());
     }
 
     private Trampoline<Void> postorderTraverse2(TreeNode node, List<Integer> result) {
@@ -140,8 +138,8 @@ public class BinaryTreeTest {
             return empty();
         }
 
-        return exec(() -> postorderTraverse2(node.left, result))
-            .then(() -> postorderTraverse2(node.right, result))
-            .then(() -> result.add(node.val));
+        return exec(() -> postorderTraverse2(node.left(), result))
+            .then(() -> postorderTraverse2(node.right(), result))
+            .then(() -> result.add(node.val()));
     }
 }

@@ -120,8 +120,6 @@ public class GameOfLifeTest {
     }
 }
 
-record Query(int r, int c) {
-}
+record Query(int r, int c) {}
 
-record Transition(int r, int c, boolean alive) {
-}
+record Transition(int r, int c, boolean alive) {}

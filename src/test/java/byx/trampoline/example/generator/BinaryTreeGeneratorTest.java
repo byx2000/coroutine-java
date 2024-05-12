@@ -64,9 +64,9 @@ public class BinaryTreeGeneratorTest {
             return empty();
         }
 
-        return pause(node.val)
-            .then(() -> preorder(node.left))
-            .then(() -> preorder(node.right));
+        return pause(node.val())
+            .then(() -> preorder(node.left()))
+            .then(() -> preorder(node.right()));
     }
 
     // 中序遍历
@@ -75,9 +75,9 @@ public class BinaryTreeGeneratorTest {
             return empty();
         }
 
-        return exec(() -> inorder(node.left))
-            .pause(node.val)
-            .then(() -> inorder(node.right));
+        return exec(() -> inorder(node.left()))
+            .pause(node.val())
+            .then(() -> inorder(node.right()));
     }
 
     // 后序遍历
@@ -86,9 +86,9 @@ public class BinaryTreeGeneratorTest {
             return empty();
         }
 
-        return exec(() -> postorder(node.left))
-            .then(() -> postorder(node.right))
-            .pause(node.val);
+        return exec(() -> postorder(node.left()))
+            .then(() -> postorder(node.right()))
+            .pause(node.val());
     }
 
     // 层序遍历
@@ -104,13 +104,13 @@ public class BinaryTreeGeneratorTest {
             () -> !queue.isEmpty(),
             () -> {
                 TreeNode cur = queue.remove();
-                if (cur.left != null) {
-                    queue.add(cur.left);
+                if (cur.left() != null) {
+                    queue.add(cur.left());
                 }
-                if (cur.right != null) {
-                    queue.add(cur.right);
+                if (cur.right() != null) {
+                    queue.add(cur.right());
                 }
-                return pause(cur.val);
+                return pause(cur.val());
             }
         );
     }
